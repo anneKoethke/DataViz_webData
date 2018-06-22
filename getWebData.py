@@ -23,12 +23,12 @@ gesamt = []
 for saison in saison_array:
     print('--- Season: ' + saison + ' ---')
 
-    print('  --- loading html file ---')
+    # print('  --- loading html file ---')
     with open("raw/" + saison + ".html", encoding="utf8") as html_file:
         soup = BeautifulSoup(html_file, 'lxml')
 
 
-    print('  --- processing data ---')
+    # print('  --- processing data ---')
 
     # VEREINSNAMEN pro Saison
     vereinsliste = []
@@ -69,11 +69,23 @@ for saison in saison_array:
 
 
 
-    # SPIELER ÄBGÄNGE PRO VEREIN
+    # EINZELNE SPIELER
+    
+    tbodys = soup.find_all('tbody')
+    trs = tbodys[36].find_all('tr') # abgänge
+    anzahl_abgaenge = len(trs)
+    spieler_abgaenge = []
+    for tr in trs:
+        for td in (tr.find_all('td')):
+            print(td)
+            print()
 
+    # SPIELERÄBGÄNGE PRO VEREIN
 
-    # SPIELER ZUGÄGNE PRO VEREIN
+    # alle Boxes, dann alle imgs
 
+    # SPIELERZUGÄGNE PRO VEREIN
+    spieler_zugaenge = []
 
 
 
@@ -95,9 +107,10 @@ for saison in saison_array:
         'Gesamtbilanz pro Spieler': ges_bilanz_pro_spieler
     }
     # print(transferbilanz_saison) #funzt!
-    print('  --- appending result to list ---')
+    # print('  --- appending result to list ---')
     gesamt.append( {saison : transferbilanz_saison} )
 
 
 print('--- result: ---')
-print(gesamt)
+# print(gesamt)
+# print(gesamt[10]) #16_17
