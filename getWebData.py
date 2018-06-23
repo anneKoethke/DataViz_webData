@@ -1,5 +1,12 @@
 # -*- coding: utf8 -*-
+import bs4
 from bs4 import BeautifulSoup
+
+# entfernt leere stellen bei Abgängen: td_list, a_list, img_list (s.u.)
+# Quelle: https://www.geeksforgeeks.org/python-remove-empty-tuples-list/ (abgerufen am 23.06.18)
+def remove(tuples):
+    tuples = [t for t in tuples if t]
+    return tuples
 
 
 # alle Transfersaisons: Sommer+Winter, ohne Leihe, ohne VereinsinternerWechsel
@@ -69,18 +76,74 @@ for saison in saison_array:
 
 
 
-    # EINZELNE SPIELER
-    
-    tbodys = soup.find_all('tbody')
-    trs = tbodys[36].find_all('tr') # abgänge
-    anzahl_abgaenge = len(trs)
-    spieler_abgaenge = []
-    for tr in trs:
-        for td in (tr.find_all('td')):
-            print(td)
-            print()
 
-    # SPIELERÄBGÄNGE PRO VEREIN
+    # SPIELER: ZU- und ABGÄNGE PRO VEREIN der Saison
+
+
+    tbodys = soup.find_all('tbody')
+    # print(len(tbodys)) # 37
+    i = 1
+    for i in range (1, len(tbodys)):
+        print(tbodys[i].)
+        trs = tbodys[i].find_all('tr')  # gerade = Abgänge je Verein der Saison, ungerade = Zugänge je Verein der Saison
+        # Reiehnfolge der Vereine wie in vereinsliste (programmatorisch zusammengehörig)
+        anzahl_abgaenge = len(trs)
+        spieler_abgaenge = []
+
+        for tr in trs:
+            td_list = []
+            a_list = []
+            img_list = []
+            for td in (tr.find_all('td')):
+                appml = []
+                nnaa = []
+                nnan = []
+                if (type(td.contents[0]) is bs4.element.NavigableString):
+                    if (td.contents[0] != ' \xa0\xa0') & (td.contents[0] != ' '):  # an dieser Stelle im HTML:
+                        # &nbsp;&nbsp; --> wird in python zu ' \xa0\xa0'
+                        appml.append(td.contents[0])  # alter, position, position kurz, marktwert, leer
+                for a in (td.find_all('a')):
+                    if (type(a.contents[0]) is bs4.element.NavigableString):
+                        nnaa.append(a.contents[0])  # name, name kurz, aufnehmender verein, ablöse
+                for img in (td.find_all('img')):
+                    nnan.append(img['alt'])  # nationalität 1, nationalität 2, aufnehmender Verein, Nation von
+                    # aufnehmendem verein
+                td_list.append(appml)
+                a_list.append(nnaa)
+                img_list.append(nnan)
+            # remove(tuple) ist eine Methode, die leere tuples entfernt (s.o.)
+            td_list = remove(td_list)
+            a_list = remove(a_list)
+            img_list = remove(img_list)
+            spieler = {}
+            if (i%2==0):
+                spieler = {
+                    'Name': a_list[0][0],
+                    'Alter': td_list[0][0],
+                    'Position': td_list[1][0],
+                    'Verein': '',
+                    'Marktwert': td_list[3][0],
+                    'Nationalität': img_list[0],
+                    'An': a_list[1][0],
+                    'Ablöse': a_list[2][0]
+                }
+            else:
+                spieler = {
+                    'Name': a_list[0][0],
+                    'Alter': td_list[0][0],
+                    'Position': td_list[1][0],
+                    'Verein': '',
+                    'Marktwert': td_list[3][0],
+                    'Nationalität': img_list[0],
+                    'Von': a_list[1][0],
+                    'Ablöse': a_list[2][0]
+                }
+            print(spieler)
+            print()
+        i += 1
+
+
+
 
     # alle Boxes, dann alle imgs
 
