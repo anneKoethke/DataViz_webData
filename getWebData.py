@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 import bs4
 from bs4 import BeautifulSoup
 import json
@@ -30,6 +30,8 @@ saison_array = [
 print('--- processing data ---\n')
 
 gesamt = []
+saison_wechsel = {}
+
 for saison in saison_array:
     print('--- Season: ' + saison + ' ---')
 
@@ -161,9 +163,9 @@ for saison in saison_array:
         if i % 2 != 0:
             j += 1
 
-    saison_wechsel[saison] = {alle_spieler}
+    saison_wechsel.update({saison : alle_spieler})
     # print(saison_wechsel)
-    gesamt.append(saison_wechsel)
+    # gesamt.append(saison_wechsel)
 
 
 
@@ -194,6 +196,6 @@ print('\n--- result: ---')
 # print(gesamt[10]) #16_17
 
 
-# Ausgabe als JSON
-# with open('saison_wechsel.json', 'w', encoding='utf-8') as json_file:
-    # json.dump(gesamt, json_file, indent=2)
+# SAISONWECHSEL: Ausgabe als JSON
+# with open('saison_wechsel.json', 'w') as json_file:
+    # json.dump(saison_wechsel, json_file, indent=2)
