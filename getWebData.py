@@ -2,7 +2,7 @@
 import bs4
 from bs4 import BeautifulSoup
 
-# entfernt leere stellen bei Abgängen: td_list, a_list, img_list (s.u.)
+# entfernt leere Stellen bei Zu- und Abgängen: td_list, a_list, img_list (s.u.)
 # Quelle: https://www.geeksforgeeks.org/python-remove-empty-tuples-list/ (abgerufen am 23.06.18)
 def remove(tuples):
     tuples = [t for t in tuples if t]
@@ -44,6 +44,7 @@ for saison in saison_array:
     all_imgs = vereins_div.find_all('img')
     for img in all_imgs:
         vereinsliste.append(img['alt'])
+    # print(vereinsliste)
 
 
 
@@ -80,15 +81,34 @@ for saison in saison_array:
     # SPIELER: ZU- und ABGÄNGE PRO VEREIN der Saison
 
 
+    # hier kann ich nachweisen, dass vereinsliste und club_list dasselbe sind -> also nur vereinsliste verwenden
+    '''
+    club_list = []
+    img_list = []
+    table_headers = soup.find_all('div', class_='table-header') # sind die DIVs oberhalb der Wanderungstabellen
+    for head in table_headers:
+        if (type(head) is bs4.element.Tag):
+            img_list.append(head.find_all('img'))
+        img_list = remove(img_list)
+    for img in img_list:
+        club_list.append(img[0]['alt'])
+    print(club_list)
+    '''
+
     tbodys = soup.find_all('tbody')
+    table_headers = soup.find_all('div', class_='table-header')
     # print(len(tbodys)) # 37
+    # print(len(table_headers)) # 19, vermutlich der erste ein NoneType
+    # print(table_headers[1].a.img['alt'])
+    alle_spieler = []
     i = 1
+    j = 1
     for i in range (1, len(tbodys)):
-        print(tbodys[i].)
         trs = tbodys[i].find_all('tr')  # gerade = Abgänge je Verein der Saison, ungerade = Zugänge je Verein der Saison
         # Reiehnfolge der Vereine wie in vereinsliste (programmatorisch zusammengehörig)
-        anzahl_abgaenge = len(trs)
-        spieler_abgaenge = []
+        anzahl = len(trs)
+        verein = table_headers[j].a.img['alt']
+        # print(verein)
 
         for tr in trs:
             td_list = []
@@ -116,39 +136,37 @@ for saison in saison_array:
             a_list = remove(a_list)
             img_list = remove(img_list)
             spieler = {}
-            if (i%2==0):
+            if (i%2==0): # Abgang von Bundesligisten
                 spieler = {
                     'Name': a_list[0][0],
                     'Alter': td_list[0][0],
                     'Position': td_list[1][0],
-                    'Verein': '',
+                    'An': a_list[1][0],
                     'Marktwert': td_list[3][0],
                     'Nationalität': img_list[0],
-                    'An': a_list[1][0],
+                    'Von': verein,
                     'Ablöse': a_list[2][0]
                 }
-            else:
+            else: # Zugang zu Bundesligisten
                 spieler = {
                     'Name': a_list[0][0],
                     'Alter': td_list[0][0],
                     'Position': td_list[1][0],
-                    'Verein': '',
+                    'An': verein,
                     'Marktwert': td_list[3][0],
                     'Nationalität': img_list[0],
                     'Von': a_list[1][0],
                     'Ablöse': a_list[2][0]
                 }
-            print(spieler)
-            print()
+            # print(spieler)
+            # print()
+            alle_spieler.append(spieler)
         i += 1
+        if i % 2 != 0:
+            j += 1
 
-
-
-
-    # alle Boxes, dann alle imgs
-
-    # SPIELERZUGÄGNE PRO VEREIN
-    spieler_zugaenge = []
+    saison_wechsel = {saison : alle_spieler}
+    # print(saison_wechsel)
 
 
 
