@@ -1,6 +1,7 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 import bs4
 from bs4 import BeautifulSoup
+import json
 
 # entfernt leere Stellen bei Zu- und Abgängen: td_list, a_list, img_list (s.u.)
 # Quelle: https://www.geeksforgeeks.org/python-remove-empty-tuples-list/ (abgerufen am 23.06.18)
@@ -26,16 +27,14 @@ saison_array = [
     "17_18"
 ]
 
+print('--- processing data ---\n')
+
 gesamt = []
 for saison in saison_array:
     print('--- Season: ' + saison + ' ---')
 
-    # print('  --- loading html file ---')
     with open("raw/" + saison + ".html", encoding="utf8") as html_file:
         soup = BeautifulSoup(html_file, 'lxml')
-
-
-    # print('  --- processing data ---')
 
     # VEREINSNAMEN pro Saison
     vereinsliste = []
@@ -45,9 +44,6 @@ for saison in saison_array:
     for img in all_imgs:
         vereinsliste.append(img['alt'])
     # print(vereinsliste)
-
-
-
 
     # TRANSFERBILANZ DER SAISON
     transferbilanz_div = soup.find('div', class_='transferbilanz') # Div mit der Transferbilanz über die gesamte Saison
@@ -142,10 +138,10 @@ for saison in saison_array:
                     'Alter': td_list[0][0],
                     'Position': td_list[1][0],
                     'An': a_list[1][0],
-                    'Marktwert': td_list[3][0],
+                    'Marktwert': td_list[3][0].strip(' €'),
                     'Nationalität': img_list[0],
                     'Von': verein,
-                    'Ablöse': a_list[2][0]
+                    'Ablöse': a_list[2][0].strip(' €')
                 }
             else: # Zugang zu Bundesligisten
                 spieler = {
@@ -153,10 +149,10 @@ for saison in saison_array:
                     'Alter': td_list[0][0],
                     'Position': td_list[1][0],
                     'An': verein,
-                    'Marktwert': td_list[3][0],
+                    'Marktwert': td_list[3][0].strip(' €'),
                     'Nationalität': img_list[0],
                     'Von': a_list[1][0],
-                    'Ablöse': a_list[2][0]
+                    'Ablöse': a_list[2][0].strip(' €')
                 }
             # print(spieler)
             # print()
@@ -165,8 +161,9 @@ for saison in saison_array:
         if i % 2 != 0:
             j += 1
 
-    saison_wechsel = {saison : alle_spieler}
+    saison_wechsel[saison] = {alle_spieler}
     # print(saison_wechsel)
+    gesamt.append(saison_wechsel)
 
 
 
@@ -189,9 +186,14 @@ for saison in saison_array:
     }
     # print(transferbilanz_saison) #funzt!
     # print('  --- appending result to list ---')
-    gesamt.append( {saison : transferbilanz_saison} )
+    # gesamt.append( {saison : transferbilanz_saison} )
 
 
-print('--- result: ---')
+print('\n--- result: ---')
 # print(gesamt)
 # print(gesamt[10]) #16_17
+
+
+# Ausgabe als JSON
+# with open('saison_wechsel.json', 'w', encoding='utf-8') as json_file:
+    # json.dump(gesamt, json_file, indent=2)
